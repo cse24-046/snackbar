@@ -21,6 +21,7 @@
         </c:when>
         <c:otherwise>
             <a href="${pageContext.request.contextPath}/login">Login</a> |
+            <a href="${pageContext.request.contextPath}/register">Create Account</a> |
             <a href="${pageContext.request.contextPath}/menu">Browse Menu</a>
         </c:otherwise>
     </c:choose>

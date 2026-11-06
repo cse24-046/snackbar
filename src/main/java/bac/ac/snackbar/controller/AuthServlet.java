@@ -26,7 +26,9 @@ public class AuthServlet extends HttpServlet {
             if (session != null) {
                 session.invalidate();
             }
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
+        } else if ("/register".equals(action)) {
+            request.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(request, response);
         } else {
             request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
         }
@@ -59,7 +61,7 @@ public class AuthServlet extends HttpServlet {
             boolean registered = userDAO.registerUser(newUser);
 
             if (registered) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp?registered=true");
+                response.sendRedirect(request.getContextPath() + "/login?registered=true");
             } else {
                 request.setAttribute("errorMessage", "Registration failed. Email may already be in use.");
                 request.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(request, response);

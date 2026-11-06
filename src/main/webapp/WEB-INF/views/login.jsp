@@ -28,6 +28,8 @@
         </div>
         <button type="submit">Login</button>
     </form>
+
+    <p>New here? <a href="${pageContext.request.contextPath}/register">Create an account</a></p>
 </div>
 </body>
 </html>
