@@ -32,33 +32,41 @@ public class OrderServlet extends HttpServlet {
         }
         User user = (User) session.getAttribute("currentUser");
 
-        long snackId = Long.parseLong(request.getParameter("snackId"));
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
+        try {
+            long snackId = Long.parseLong(request.getParameter("snackId"));
+            int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        SnackItem snack = snackDAO.findById(snackId);
-        if (snack == null || snack.getStockQuantity() < quantity) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Selected snack is out of stock or invalid.");
-            return;
-        }
+            if (quantity <= 0) {
+                throw new NumberFormatException("Quantity must be positive");
+            }
 
-        double totalPrice = snack.getPrice() * quantity;
+            SnackItem snack = snackDAO.findById(snackId);
+            if (snack == null || snack.getStockQuantity() < quantity) {
+                response.sendRedirect(request.getContextPath() + "/menu?error=invalid-order");
+                return;
+            }
 
-        Order order = new Order();
-        order.setUserId(user.getId());
-        order.setSnackId(snackId);
-        order.setQuantity(quantity);
-        order.setTotalPrice(totalPrice);
-        order.setOrderTime(LocalDateTime.now());
-        order.setStatus("PENDING");
+            double totalPrice = snack.getPrice() * quantity;
 
-        boolean success = orderDAO.createOrder(order);
+            Order order = new Order();
+            order.setUserId(user.getId());
+            order.setSnackId(snackId);
+            order.setQuantity(quantity);
+            order.setTotalPrice(totalPrice);
+            order.setOrderTime(LocalDateTime.now());
+            order.setStatus("PENDING");
 
-        if (success) {
-            request.setAttribute("order", order);
-            request.setAttribute("snackName", snack.getName());
-            request.getRequestDispatcher("/WEB-INF/views/order-success.jsp").forward(request, response);
-        } else {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to process order.");
+            boolean success = orderDAO.createOrder(order);
+
+            if (success) {
+                request.setAttribute("order", order);
+                request.setAttribute("snackName", snack.getName());
+                request.getRequestDispatcher("/WEB-INF/views/order-success.jsp").forward(request, response);
+            } else {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to process order.");
+            }
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/menu?error=invalid-order");
         }
     }
 }
